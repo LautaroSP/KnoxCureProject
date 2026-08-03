@@ -58,6 +58,27 @@ Los siguientes tipos proceden de los scripts generados de moveables de Build 42:
 Para muebles médicos multitile se usa primero el tipo moveable o la propiedad
 `CustomName` en runtime; no se inventan números de sprite no comprobados.
 
+### Lista blanca de estaciones de Fase 2
+
+La detección provisional usa propiedades runtime y nombres de sprites de Build
+42. No modifica los objetos vanilla:
+
+- Autopsia: combinaciones `Dentist Patient|Chair`, `Patient|Chair`,
+  `Large Medical|Bed`, `Hospital|Bed`, `Morgue|Table` y `Stretcher|Bed` de
+  `GroupName|CustomName`.
+- Microscopio: orientaciones `location_community_medical_01_136`–`139`;
+  `136` es el sprite canónico de `Base.Mov_Microscope`.
+- Almacenamiento frío: sprites de `appliances_refrigeration_01`, incluyendo
+  variantes comunes, industriales, mini, popsicle y chest freezer.
+- Knox Cure: `kcp_lab_equipment_01_0`–`3` (centrífuga), `8`–`11`
+  (analizador) y `16`–`23` (sintetizador 2x1).
+
+En esta fase, `Inspeccionar estación` es una comprobación cliente de solo
+lectura. No inicia acciones, no mueve al personaje y no persiste estado.
+La vista previa de LEDs sólo está disponible en debug y fuera de clientes
+multijugador; los estados de juego reales se implementarán con autoridad del
+servidor.
+
 ## Objetos y protección reutilizables
 
 Confirmados en los scripts/distribuciones vanilla: `Base.Scalpel`, tijeras

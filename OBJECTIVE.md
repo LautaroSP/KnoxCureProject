@@ -83,6 +83,11 @@ personajes pueden aportar Primeros Auxilios, Electricidad y Metalistería.
 - Las propiedades de tile correspondientes son `PickUpWeight = 200`, `350` y
   `400`, porque Build 42 divide ese valor por diez.
 - Sólo pueden recogerse apagados y sin una operación activa.
-- Requieren destornillador y Electricidad 1/2/3 respectivamente.
+- Requieren destornillador y Electricidad 1/2/4 respectivamente.
 - Los tamaños 2x `128×256` y 1x `64×128` son provisionales hasta la prueba
   dentro del juego.
+- Los estados visuales usan solamente LEDs estáticos: apagado, verde listo,
+  ámbar trabajando y rojo averiado. Las pantallas no cambian.
+- La vibración sutil y el sonido de motor de la centrífuga quedan diferidos al
+  trabajo final de animaciones y sonido. El gabinete 2x1 del sintetizador debe
+  permanecer fijo para no abrir visualmente la unión entre baldosas.

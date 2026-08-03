@@ -19,9 +19,9 @@ Cada fase termina con verificación, checklist y commit estable.
 
 ## Fase 2 — Estaciones y base visual
 
-- [ ] Seis estaciones detectables o colocables.
-- [ ] Lista blanca de sprites vanilla.
-- [ ] Centrífuga, analizador y sintetizador con estados visuales.
+- [x] Seis estaciones detectables o colocables.
+- [x] Lista blanca de sprites vanilla.
+- [x] Centrífuga, analizador y sintetizador con estados visuales.
 
 ## Fase 3 — Acciones, sonidos y animaciones
 

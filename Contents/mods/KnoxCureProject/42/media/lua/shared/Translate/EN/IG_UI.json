@@ -1,5 +1,19 @@
 {
   "IGUI_KCP_ModName": "Knox Cure Project",
-  "IGUI_KCP_Status_Planning": "Laboratory systems are under development."
+  "IGUI_KCP_Status_Planning": "Laboratory systems are under development.",
+  "IGUI_KCP_Context_Root": "Knox Cure",
+  "IGUI_KCP_Context_Inspect": "Inspect station",
+  "IGUI_KCP_Context_PreviewState": "Preview state (debug)",
+  "IGUI_KCP_Preview_State": "Preview state",
+  "IGUI_KCP_State_off": "Off",
+  "IGUI_KCP_State_ready": "Ready",
+  "IGUI_KCP_State_working": "Working",
+  "IGUI_KCP_State_broken": "Broken",
+  "IGUI_KCP_Station_Valid": "Valid station",
+  "IGUI_KCP_Station_Autopsy": "Autopsy station",
+  "IGUI_KCP_Station_Microscope": "Microscope station",
+  "IGUI_KCP_Station_ColdStorage": "Refrigerated storage",
+  "IGUI_KCP_Station_Centrifuge": "Centrifuge",
+  "IGUI_KCP_Station_BioAnalyzer": "Biological analyzer",
+  "IGUI_KCP_Station_Synthesizer": "Synthesizer"
 }
-
