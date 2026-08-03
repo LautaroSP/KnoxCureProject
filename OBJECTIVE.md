@@ -75,3 +75,14 @@ personajes pueden aportar Primeros Auxilios, Electricidad y Metalistería.
 - Reutilizar recursos vanilla por identificador; crear como máximo tres modelos
   principales salvo revisión explícita del objetivo.
 
+## Decisiones provisionales de estaciones
+
+- Los tres equipos nuevos usan el sistema vanilla de agarrar/colocar muebles.
+- Pesos aprobados: centrífuga `20`, analizador biológico `35` y sintetizador
+  `40` unidades de inventario.
+- Las propiedades de tile correspondientes son `PickUpWeight = 200`, `350` y
+  `400`, porque Build 42 divide ese valor por diez.
+- Sólo pueden recogerse apagados y sin una operación activa.
+- Requieren destornillador y Electricidad 1/2/3 respectivamente.
+- Los tamaños 2x `128×256` y 1x `64×128` son provisionales hasta la prueba
+  dentro del juego.

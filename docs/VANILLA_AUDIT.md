@@ -184,3 +184,20 @@ sets, nunca suma.
 
 No se redistribuirá ningún recurso vanilla: todos se referencian por nombre,
 sprite o API.
+
+## Parámetros moveable comprobados
+
+Build 42 calcula el peso de inventario como `PickUpWeight / 10` en
+`media/lua/shared/Moveables/ISMoveableSpriteProps.lua`. Referencias verificadas:
+
+| Recurso vanilla | `PickUpWeight` | Peso resultante |
+|---|---:|---:|
+| Computadora de escritorio | 100 | 10 |
+| Camilla de hospital | 150 | 15 |
+| Microscopio | 200 | 20 |
+| Heladera industrial | 400 | 40 |
+
+Valores provisionales aprobados para Knox Cure: centrífuga `200` (20),
+analizador `350` (35) y sintetizador `400` (40). Usarán `IsMoveAble`,
+`ForceSingleItem` y la herramienta vanilla `Electrician`, que requiere
+destornillador y comprueba la habilidad Electricidad mediante `PickUpLevel`.
