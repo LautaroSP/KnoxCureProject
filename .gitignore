@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Logs and generated output
+*.log
+*_error.log
+build/
+dist/
+release/
+.release/
+
+# Blender backups
+*.blend1
+*.blend2
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Project Zomboid local metadata
+*.bak
+*.tmp
+
