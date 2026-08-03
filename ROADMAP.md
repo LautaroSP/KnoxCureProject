@@ -2,20 +2,20 @@
 
 Cada fase termina con verificación, checklist y commit estable.
 
-## Fase 0 — Repositorio y documentación
+## Fase 0 — Repositorio y documentación (completada)
 
-- [ ] Scaffold reconocido por Build 42.
-- [ ] Objetivo, roadmap y auditoría inicial guardados.
-- [ ] Repositorio público creado y sincronizado.
+- [x] Scaffold Build 42 creado y validado estructuralmente.
+- [x] Objetivo, roadmap y auditoría inicial guardados.
+- [x] Repositorio público creado y sincronizado.
 
-## Fase 1 — Auditoría vanilla
+## Fase 1 — Auditoría vanilla (completada)
 
-- [ ] Muebles, modelos, sprites, objetos y componentes.
-- [ ] Acciones de cadáveres y estaciones.
-- [ ] Animaciones y sonidos reutilizables.
-- [ ] Profesiones, rasgos, libros, planos y distribución.
-- [ ] Persistencia, infección y autoridad de servidor.
-- [ ] Matriz reutilizar/adaptar/crear completa.
+- [x] Muebles, modelos, sprites, objetos y componentes.
+- [x] Acciones de cadáveres y estaciones.
+- [x] Animaciones y sonidos reutilizables.
+- [x] Profesiones, rasgos, libros, planos y distribución.
+- [x] Persistencia, infección y autoridad de servidor.
+- [x] Matriz reutilizar/adaptar/crear completa.
 
 ## Fase 2 — Estaciones y base visual
 
@@ -60,4 +60,3 @@ Cada fase termina con verificación, checklist y commit estable.
 - [ ] Pruebas SP, cooperativo y servidor dedicado.
 - [ ] Campaña estándar de 2–3 meses.
 - [ ] Traducciones, paquete Workshop y v1.0.0.
-
