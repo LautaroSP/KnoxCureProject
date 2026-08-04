@@ -57,6 +57,9 @@ function KCPTimedAction:update()
 end
 
 function KCPTimedAction:start()
+    if self.definition.allowedWhileDraggingCorpses then
+        self.action:setAllowedWhileDraggingCorpses(true)
+    end
     KCPTimedAction.active[self.token] = self
     if isClient() then
         sendClientCommand(self.character, "KCP", "beginAction", self.args)
@@ -115,6 +118,7 @@ function KCPTimedAction:new(character, worldObject, definition, token)
     o.stopOnWalk = true
     o.stopOnRun = true
     o.stopOnAim = true
+    o.allowedWhileDraggingCorpses = definition.allowedWhileDraggingCorpses == true
     return o
 end
 

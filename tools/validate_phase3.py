@@ -20,6 +20,8 @@ def require(condition: bool, message: str) -> None:
 
 
 expected_actions = {
+    "placeCorpseOnGurney",
+    "removeCorpseFromGurney",
     "cleanGurney",
     "autopsy",
     "extractSample",
@@ -46,12 +48,17 @@ service = read(
 executors = set(re.findall(r"EXECUTORS\.([A-Za-z0-9_]+)\s*=", service))
 require(expected_actions == executors, f"Executor mismatch: {expected_actions ^ executors}")
 require("busyToken" in service and "busyUntil" in service, "Station locking is missing")
+require("setDoGrappleLetGo" in service, "Vanilla corpse release is missing")
+require("pickUpCorpse" in service, "Vanilla corpse retrieval is missing")
+require("resolveCorpsePlacements" in service, "Corpse-to-gurney linking is missing")
 
 utils = read(
     "Contents/mods/KnoxCureProject/42/media/lua/shared/KCP/Actions/KCPActionUtils.lua"
 )
 require("sendRemoveItemFromContainer" in utils, "Server inventory removal sync is missing")
 require("sendAddItemToContainer" in utils, "Server inventory addition sync is missing")
+require("getDraggedZombieCorpse" in utils, "Dragged zombie validation is missing")
+require("getLinkedCorpse" in utils, "Gurney corpse linking is missing")
 
 server = read(
     "Contents/mods/KnoxCureProject/42/media/lua/server/KCP/Actions/KCPActionServer.lua"

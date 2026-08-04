@@ -5,6 +5,19 @@ KCPActionDefinitions.cleaningFluidAmount = 0.10
 KCPActionDefinitions.lockTimeoutHours = 1.0
 
 local ACTIONS = {
+    placeCorpseOnGurney = {
+        id = "placeCorpseOnGurney",
+        station = "autopsy",
+        labelKey = "IGUI_KCP_Action_PlaceCorpseOnGurney",
+        duration = 10,
+        allowedWhileDraggingCorpses = true,
+    },
+    removeCorpseFromGurney = {
+        id = "removeCorpseFromGurney",
+        station = "autopsy",
+        labelKey = "IGUI_KCP_Action_RemoveCorpseFromGurney",
+        duration = 10,
+    },
     cleanGurney = {
         id = "cleanGurney",
         station = "autopsy",
@@ -104,7 +117,13 @@ for _, action in pairs(ACTIONS) do
 end
 
 local ORDER = {
-    autopsy = { "cleanGurney", "autopsy", "extractSample" },
+    autopsy = {
+        "placeCorpseOnGurney",
+        "removeCorpseFromGurney",
+        "cleanGurney",
+        "autopsy",
+        "extractSample",
+    },
     microscope = { "examineMicroscope" },
     centrifuge = { "runCentrifuge" },
     bioAnalyzer = { "calibrateAnalyzer", "analyzeViralFraction" },

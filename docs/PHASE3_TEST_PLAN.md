@@ -20,20 +20,24 @@ reservado para la Fase 4.
 
 ## Flujo provisional comprobable
 
-1. Limpiar una camilla vacía consume `0.10 L` de alcohol o líquido limpiador. Un
+1. Mientras se arrastra un cadáver zombi, `Colocar cadáver en la camilla` lo
+   suelta centrado sobre la estación y lo vincula a ella. `Retirar cadáver de la
+   camilla` vuelve a tomar ese mismo cadáver. Ninguna acepta zombis vivos,
+   animales o cuerpos humanos.
+2. Limpiar una camilla vacía consume `0.10 L` de alcohol o líquido limpiador. Un
    trapo limpio pasa a estar sucio; la esponja se conserva.
-2. Una autopsia exige camilla limpia, cadáver zombi adyacente, bisturí, guantes y
+3. Una autopsia exige camilla limpia, cadáver zombi colocado, bisturí, guantes y
    barbijo equipados. Ensucia la camilla, desgasta un punto del bisturí y habilita
    una muestra provisional.
-3. Extraer consume un recipiente y produce una muestra cruda.
-4. El microscopio, con Primeros Auxilios 3, produce una muestra clasificada.
-5. La centrífuga, con Primeros Auxilios 4, electricidad y contrapeso, produce una
+4. Extraer consume un recipiente y produce una muestra cruda.
+5. El microscopio, con Primeros Auxilios 3, produce una muestra clasificada.
+6. La centrífuga, con Primeros Auxilios 4, electricidad y contrapeso, produce una
    fracción viral.
-6. Calibrar el analizador exige Electricidad 3 y destornillador. Analizar exige
+7. Calibrar el analizador exige Electricidad 3 y destornillador. Analizar exige
    Primeros Auxilios 5 y produce una fracción estabilizada.
-7. La terminal puede escribir un registro con cuaderno y útil de escritura,
+8. La terminal puede escribir un registro con cuaderno y útil de escritura,
    exportar a un disco e importar el mismo disco.
-8. El sintetizador exige Primeros Auxilios 7, energía, fracción estabilizada,
+9. El sintetizador exige Primeros Auxilios 7, energía, fracción estabilizada,
    reactivos e inyector. Produce sólo un lote experimental sin efecto médico.
 
 Los rendimientos finales, perfiles virales, frescura, investigación real,
@@ -47,12 +51,20 @@ respaldos con porcentaje y cura quedan fuera de esta fase.
    `Knox Cure > Pruebas de Fase 3 (debug)`.
 4. Añadir el kit completo y fijar Primeros Auxilios 7/Electricidad 3.
 5. Equipar manualmente los guantes y el barbijo.
-6. Matar un zombi y arrastrar su cadáver hasta una casilla junto a la camilla.
+6. Matar un zombi, comenzar a arrastrar su cadáver y hacer clic derecho sobre la
+   camilla.
 
 ## Matriz manual en solitario
 
 - [ ] Todas las opciones aparecen; las inválidas están en rojo y explican cada
   requisito faltante.
+- [ ] `Colocar cadáver en la camilla` sólo se habilita mientras se arrastra un
+  cadáver zombi y la camilla está vacía.
+- [ ] El cadáver queda centrado visualmente y persiste vinculado tras guardar y
+  cargar la partida.
+- [ ] La autopsia no acepta un cadáver simplemente abandonado junto a la camilla.
+- [ ] `Retirar cadáver de la camilla` vuelve a arrastrar el mismo cuerpo y no lo
+  duplica.
 - [ ] Quitar y recuperar un nivel requerido actualiza la opción del microscopio,
   centrífuga, analizador o sintetizador.
 - [ ] La limpieza consume líquido sólo al completar y convierte el trapo en

@@ -208,6 +208,65 @@ function KCPActionUtils.getCorpseData(corpse)
     return modData.KCPPhase3
 end
 
+function KCPActionUtils.getGurneyKey(worldObject)
+    worldObject = KCPActionUtils.getCanonicalObject(worldObject)
+    local square = worldObject and worldObject:getSquare()
+    if not square then return nil end
+    return tostring(square:getX()) .. ":" .. tostring(square:getY()) .. ":" .. tostring(square:getZ())
+end
+
+function KCPActionUtils.getGurneyPlacement(worldObject)
+    local members = KCPActionUtils.getStationObjects(worldObject)
+    local totalX, totalY, count, z = 0, 0, 0, nil
+    for _, member in ipairs(members) do
+        local square = member:getSquare()
+        if square then
+            totalX = totalX + square:getX() + 0.5
+            totalY = totalY + square:getY() + 0.5
+            z = square:getZ()
+            count = count + 1
+        end
+    end
+    if count == 0 then return nil end
+    return totalX / count, totalY / count, z
+end
+
+function KCPActionUtils.getDraggedZombieCorpse(playerObj)
+    if not playerObj or not playerObj:isDraggingCorpse() then return nil end
+    local target = playerObj:getGrapplingTarget()
+    if not target or not target:isDead() or not target:isZombie() then return nil end
+    return target
+end
+
+function KCPActionUtils.getCorpseCarrierId(playerObj)
+    if isMultiplayer() then return playerObj:getOnlineID() end
+    return playerObj:getPlayerNum()
+end
+
+function KCPActionUtils.getLinkedCorpse(worldObject)
+    local key = KCPActionUtils.getGurneyKey(worldObject)
+    if not key then return nil end
+    for _, member in ipairs(KCPActionUtils.getStationObjects(worldObject)) do
+        local origin = member:getSquare()
+        for dx = -2, 2 do
+            for dy = -2, 2 do
+                local square = getCell():getGridSquare(origin:getX() + dx, origin:getY() + dy, origin:getZ())
+                local bodies = square and square:getDeadBodys()
+                if bodies then
+                    for i = 0, bodies:size() - 1 do
+                        local corpse = bodies:get(i)
+                        local data = KCPActionUtils.getCorpseData(corpse)
+                        if not corpse:isAnimal() and corpse:isZombie() and data.gurneyKey == key then
+                            return corpse
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
 local function hasWrittenResearchDrive(playerObj)
     local drive = KCPActionUtils.getItem(playerObj, "KCP.ResearchDrive")
     return drive and drive:getModData().KCPPhase3HasData == true
@@ -231,6 +290,13 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
 
     local data = KCPActionUtils.getStationData(worldObject)
     KCPActionUtils.clearExpiredLock(data)
+    if data.corpsePlacementPending == true and data.corpsePlacementStarted
+        and getGameTime():getWorldAgeHours() - data.corpsePlacementStarted > 0.01 then
+        data.corpsePlacementPending = nil
+        data.corpsePlacementPlayer = nil
+        data.corpsePlacementStarted = nil
+        KCPActionUtils.transmitModData(worldObject)
+    end
     addRequirement(requirements, not data.busyToken or data.busyToken == token, "IGUI_KCP_Requirement_StationAvailable")
 
     if action.requiredFirstAid then
@@ -251,29 +317,44 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
     local actionCorpse = nil
     local actionCorpseData = nil
     if action.station == "autopsy" then
-        corpse = KCPActionUtils.findZombieCorpse(worldObject)
+        corpse = KCPActionUtils.getLinkedCorpse(worldObject)
         if actionId == "autopsy" then
-            actionCorpse = KCPActionUtils.findZombieCorpse(worldObject, "unautopsied")
+            actionCorpse = corpse
+            if actionCorpse and KCPActionUtils.getCorpseData(actionCorpse).autopsied == true then
+                actionCorpse = nil
+            end
         elseif actionId == "extractSample" then
-            actionCorpse = KCPActionUtils.findZombieCorpse(worldObject, "sample")
+            actionCorpse = corpse
+            local linkedData = KCPActionUtils.getCorpseData(actionCorpse)
+            if not linkedData or linkedData.autopsied ~= true or (linkedData.samplesRemaining or 0) <= 0 then
+                actionCorpse = nil
+            end
         end
         actionCorpseData = KCPActionUtils.getCorpseData(actionCorpse)
     end
 
-    if actionId == "cleanGurney" then
+    if actionId == "placeCorpseOnGurney" then
+        addRequirement(requirements, corpse == nil and data.corpsePlacementPending ~= true,
+            "IGUI_KCP_Requirement_GurneyAvailableForCorpse")
+        addRequirement(requirements, KCPActionUtils.getDraggedZombieCorpse(playerObj) ~= nil,
+            "IGUI_KCP_Requirement_DraggedZombieCorpse")
+    elseif actionId == "removeCorpseFromGurney" then
+        addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_CorpseOnGurney")
+        addRequirement(requirements, not playerObj:isDraggingCorpse(), "IGUI_KCP_Requirement_HandsFreeForCorpse")
+    elseif actionId == "cleanGurney" then
         addRequirement(requirements, data.clean ~= true, "IGUI_KCP_Requirement_GurneyDirty")
         addRequirement(requirements, corpse == nil, "IGUI_KCP_Requirement_GurneyEmpty")
         addRequirement(requirements, KCPActionUtils.getCleaningAgent(playerObj) ~= nil, "IGUI_KCP_Requirement_CleaningAgent")
         addRequirement(requirements, KCPActionUtils.getCleaningTool(playerObj) ~= nil, "IGUI_KCP_Requirement_CleaningTool")
     elseif actionId == "autopsy" then
-        addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_ZombieCorpse")
+        addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_CorpseOnGurney")
         addRequirement(requirements, data.clean == true, "IGUI_KCP_Requirement_GurneyClean")
         addRequirement(requirements, actionCorpseData and actionCorpseData.autopsied ~= true, "IGUI_KCP_Requirement_NotAutopsied")
         addRequirement(requirements, KCPActionUtils.getUsableItem(playerObj, "Base.Scalpel") ~= nil, "IGUI_KCP_Requirement_Scalpel")
         addRequirement(requirements, KCPActionUtils.isWearing(playerObj, "Base.Gloves_Surgical"), "IGUI_KCP_Requirement_SurgicalGloves")
         addRequirement(requirements, KCPActionUtils.isWearing(playerObj, "Base.Hat_SurgicalMask"), "IGUI_KCP_Requirement_SurgicalMask")
     elseif actionId == "extractSample" then
-        addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_ZombieCorpse")
+        addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_CorpseOnGurney")
         addRequirement(requirements, actionCorpseData and actionCorpseData.autopsied == true, "IGUI_KCP_Requirement_AutopsiedCorpse")
         addRequirement(requirements, actionCorpseData and (actionCorpseData.samplesRemaining or 0) > 0, "IGUI_KCP_Requirement_SamplesRemaining")
         addRequirement(requirements, KCPActionUtils.getUsableItem(playerObj, "Base.Scalpel") ~= nil, "IGUI_KCP_Requirement_Scalpel")
