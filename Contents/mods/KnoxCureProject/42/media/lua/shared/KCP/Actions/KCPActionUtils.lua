@@ -231,11 +231,11 @@ function KCPActionUtils.getGurneyPlacement(worldObject)
     return totalX / count, totalY / count, z
 end
 
-function KCPActionUtils.getDraggedZombieCorpse(playerObj)
-    if not playerObj or not playerObj:isDraggingCorpse() then return nil end
-    local target = playerObj:getGrapplingTarget()
-    if not target or not target:isDead() or not target:isZombie() then return nil end
-    return target
+function KCPActionUtils.isDraggingCorpse(playerObj)
+    -- Build 42 does not reliably expose getGrapplingTarget() to Lua while the
+    -- context menu is open. isDraggingCorpse() is the vanilla source of truth;
+    -- the released IsoDeadBody is checked as a zombie before it is linked.
+    return playerObj ~= nil and playerObj:isDraggingCorpse()
 end
 
 function KCPActionUtils.getCorpseCarrierId(playerObj)
@@ -336,7 +336,7 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
     if actionId == "placeCorpseOnGurney" then
         addRequirement(requirements, corpse == nil and data.corpsePlacementPending ~= true,
             "IGUI_KCP_Requirement_GurneyAvailableForCorpse")
-        addRequirement(requirements, KCPActionUtils.getDraggedZombieCorpse(playerObj) ~= nil,
+        addRequirement(requirements, KCPActionUtils.isDraggingCorpse(playerObj),
             "IGUI_KCP_Requirement_DraggedZombieCorpse")
     elseif actionId == "removeCorpseFromGurney" then
         addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_CorpseOnGurney")

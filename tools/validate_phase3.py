@@ -57,7 +57,7 @@ utils = read(
 )
 require("sendRemoveItemFromContainer" in utils, "Server inventory removal sync is missing")
 require("sendAddItemToContainer" in utils, "Server inventory addition sync is missing")
-require("getDraggedZombieCorpse" in utils, "Dragged zombie validation is missing")
+require("isDraggingCorpse" in utils, "Vanilla corpse-dragging validation is missing")
 require("getLinkedCorpse" in utils, "Gurney corpse linking is missing")
 
 server = read(

@@ -120,10 +120,12 @@ EXECUTORS.placeCorpseOnGurney = function(playerObj, worldObject)
     local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
     local data = KCPActionUtils.getStationData(worldObject)
     local key = KCPActionUtils.getGurneyKey(worldObject)
-    local draggedCorpse = KCPActionUtils.getDraggedZombieCorpse(playerObj)
-    local draggedData = KCPActionUtils.getCorpseData(draggedCorpse)
-    draggedData.gurneyKey = nil
-    draggedData.pendingGurneyKey = key
+    local draggedCorpse = playerObj:getGrapplingTarget()
+    if draggedCorpse then
+        local draggedData = KCPActionUtils.getCorpseData(draggedCorpse)
+        draggedData.gurneyKey = nil
+        draggedData.pendingGurneyKey = key
+    end
     data.corpsePlacementPending = true
     data.corpsePlacementPlayer = KCPActionUtils.getCorpseCarrierId(playerObj)
     data.corpsePlacementStarted = getGameTime():getWorldAgeHours()
