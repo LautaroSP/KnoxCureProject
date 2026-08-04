@@ -1,0 +1,92 @@
+module KCP
+{
+    item ProvisionalSampleContainer
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = GlassJar,
+        Tags = base:fitswallet,
+    }
+
+    item RawTissueSample
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+
+    item ClassifiedTissueSample
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+
+    item CentrifugeBalanceTube
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+
+    item ViralFraction
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+
+    item StabilizedViralFraction
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+
+    item ResearchDrive
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.4,
+        Icon = ScannerChip,
+    }
+
+    item ScientificRecord
+    {
+        DisplayCategory = Literature,
+        ItemType = base:normal,
+        Weight = 0.3,
+        Icon = Notebook,
+    }
+
+    item SynthesisReagentKit
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = FirstAid,
+    }
+
+    item EmptyInjector
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = SutureNeedle,
+        Tags = base:fitswallet,
+    }
+
+    item ExperimentalSynthesisBatch
+    {
+        DisplayCategory = FirstAid,
+        ItemType = base:normal,
+        Weight = 0.2,
+        Icon = GlassJar,
+    }
+}

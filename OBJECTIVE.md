@@ -33,6 +33,27 @@ duros o registros escritos; nunca aparecen automáticamente en otro laboratorio.
   científicos ni los planos de maquinaria.
 - Tras 15 autopsias, un personaje común obtiene Forense experimentado.
 
+### Cadena operativa aprobada
+
+- Limpiar la camilla requiere alcohol desinfectante o líquido limpiador y un
+  trapo limpio o esponja. La autopsia vuelve a ensuciarla.
+- Autopsia y extracción exigen bisturí, guantes quirúrgicos y barbijo equipados.
+- La extracción usa un recipiente estéril; durante la Fase 3 es un objeto
+  genérico provisional sin modelo propio y su recurso definitivo se diseña en
+  la Fase 4.
+- El microscopio requiere Primeros Auxilios 3; la centrífuga, Primeros Auxilios
+  4, electricidad y un contrapeso; analizar una fracción viral requiere Primeros
+  Auxilios 5.
+- Calibrar el analizador requiere Electricidad 3, energía y destornillador.
+- Escribir un registro usa cuaderno y útil de escritura, sin electricidad. La
+  exportación e importación usan una terminal energizada y un disco de
+  investigación reutilizable.
+- Operar el sintetizador requiere Primeros Auxilios 7, energía, fracción viral
+  estabilizada, reactivos e inyector estéril. La cura real permanece reservada
+  para la Fase 7.
+- Las opciones permanecen visibles en rojo cuando falta un requisito y explican
+  el nivel, herramienta, equipo, material o energía ausente.
+
 ## Investigación
 
 El proyecto avanza mediante datos rutinarios y experimentos obligatorios:
@@ -88,6 +109,8 @@ personajes pueden aportar Primeros Auxilios, Electricidad y Metalistería.
   dentro del juego.
 - Los estados visuales usan solamente LEDs estáticos: apagado, verde listo,
   ámbar trabajando y rojo averiado. Las pantallas no cambian.
-- La vibración sutil y el sonido de motor de la centrífuga quedan diferidos al
-  trabajo final de animaciones y sonido. El gabinete 2x1 del sintetizador debe
-  permanecer fijo para no abrir visualmente la unión entre baldosas.
+- La centrífuga reutiliza sonidos vanilla de lavadora para inicio, trabajo y
+  finalización. Su posible vibración visual queda diferida al trabajo final de
+  animaciones.
+- El gabinete 2x1 del sintetizador debe permanecer fijo para no abrir
+  visualmente la unión entre baldosas.

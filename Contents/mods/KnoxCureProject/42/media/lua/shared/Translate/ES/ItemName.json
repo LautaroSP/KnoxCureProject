@@ -1,0 +1,13 @@
+{
+  "KCP.ProvisionalSampleContainer": "Recipiente de muestra provisional",
+  "KCP.RawTissueSample": "Muestra de tejido cruda",
+  "KCP.ClassifiedTissueSample": "Muestra de tejido clasificada",
+  "KCP.CentrifugeBalanceTube": "Tubo de contrapeso",
+  "KCP.ViralFraction": "Fracción viral",
+  "KCP.StabilizedViralFraction": "Fracción viral estabilizada",
+  "KCP.ResearchDrive": "Disco de investigación",
+  "KCP.ScientificRecord": "Registro científico",
+  "KCP.SynthesisReagentKit": "Kit de reactivos de síntesis",
+  "KCP.EmptyInjector": "Inyector estéril vacío",
+  "KCP.ExperimentalSynthesisBatch": "Lote de síntesis experimental"
+}

@@ -112,35 +112,42 @@ La autopsia no elimina el cadáver. El servidor marca el ID/modData del cuerpo
 como utilizado antes de otorgar muestra o XP. Toda petición vuelve a comprobar
 distancia, herramientas, estación y estado del cuerpo.
 
-## Animaciones reutilizables
+## Animaciones auditadas
 
-| Uso Knox Cure | Animación vanilla |
-|---|---|
-| Preparar, limpiar, extraer, cargar, reparar | `CharacterActionAnims.Bandage` o `Loot` |
-| Leer protocolos y libros | `CharacterActionAnims.Read` |
-| Escribir registro | patrón de `ISWriteSomething` con `Read` |
-| Investigar planos | patrón de `ISResearchRecipe` con `Loot` |
-| Arrastrar cadáver | sistema nativo `BwdDrag` |
+Los patrones vanilla `Bandage`, `Loot`, `Read`, `ISWriteSomething` e
+`ISResearchRecipe` fueron revisados como referencias técnicas. El arrastre de
+cadáveres conserva el sistema nativo `BwdDrag` porque no es una acción nueva de
+Knox Cure.
 
 No existe una animación dedicada a autopsia, centrífuga, terminal o sintetizador.
-En v0.x se reutilizan Bandage/Loot/Read; una animación propia sólo se incorpora si
-la prueba visual demuestra una brecha suficientemente visible.
+Por decisión de diseño, durante las fases actuales las acciones nuevas mantienen
+al personaje quieto y no asignan animaciones de acción. Las animaciones se
+diseñarán junto con el usuario al final del resto del desarrollo.
 
 ## Sonidos reutilizables
 
-Confirmados por los scripts vanilla:
+La prueba auditiva dentro del juego dejó aprobada esta matriz:
 
-- `FirstAidApplyBandage`, `FirstAidRemoveFromWound`, `FirstAidApplyStitch`,
-  `FirstAidApplyAlcohol`, `FirstAidApplyWipes`, `FirstAidCleanRag`.
-- `GeneratorRepair` para calibración/reparación mecánica.
-- `OpenBook`, `CloseBook`, `PageFlipBook`, `OpenMagazine`.
-- `OpenFridge`, `CloseFridge`, `PutItemInFridge`.
-- `FridgeHumA` a `FridgeHumF` para frío energizado.
-- `FactoryMachineAmbiance` como placeholder de maquinaria.
+| Operación | Sonido | Origen |
+|---|---|---|
+| Preparar o limpiar camilla | `FirstAidCleanBurn` | Vanilla |
+| Autopsia | `ButcheringGatherMeatLarge` | Vanilla |
+| Extraer muestra | `FirstAidRemoveFromWound` | Vanilla |
+| Examinar en microscopio | Silencioso | Decisión de diseño |
+| Iniciar centrífuga | `LightSwitch` | Vanilla |
+| Centrífuga trabajando | `ClothingWasherRunning` | Vanilla |
+| Centrífuga terminada | `ClothingWasherFinished` | Vanilla |
+| Calibrar analizador | `Dismantle` | Vanilla |
+| Analizador trabajando | `CarBatteryChargerRunning` | Vanilla |
+| Escribir registro científico | `MapAddNote` | Vanilla |
+| Exportar o importar datos | `KCP_KeyboardTyping` | Propio adaptado |
+| Manipular fluidos del sintetizador | `TransferLiquid` | Vanilla |
+| Sintetizador trabajando | `KCP_SynthesizerRotor` | Propio adaptado |
 
-No se encontró un sonido específico para computadora, centrífuga o equipamiento
-médico. Los tres equipos nuevos requieren sonidos propios antes de v1.0 si el
-placeholder industrial resulta audible fuera de contexto.
+Los dos sonidos propios están definidos en `media/scripts/KCP_Sounds.txt`, se
+distribuyen como OGG Vorbis mono a 44,1 kHz y se documentan en
+`THIRD_PARTY_NOTICES.md`. `FactoryMachineAmbiance` y
+`ControlStationAmbiance` fueron probados y descartados para el sintetizador.
 
 ## Profesiones, libros, recetas y planos
 
@@ -198,8 +205,9 @@ sets, nunca suma.
 
 1. Tres sprites/modelos propios: centrífuga, analizador y sintetizador.
 2. Iconos propios para muestras, disco, registro, test y dosis.
-3. Sonidos propios opcionales para los tres equipos nuevos antes de v1.0.
-4. Acciones temporizadas y UI de proyecto completamente nuevas.
+3. Animaciones propias para las acciones nuevas, diferidas por decisión de
+   diseño hasta el final del resto del desarrollo.
+4. UI de proyecto completamente nueva, reservada para la Fase 6.
 5. Seguimiento de frescura, temperatura y caducidad propio.
 6. Validación servidor-autoritativa y bloqueo de operaciones propio.
 

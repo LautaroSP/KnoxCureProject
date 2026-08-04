@@ -7,6 +7,7 @@ local STATIONS = {
     centrifuge = { id = "centrifuge", labelKey = "IGUI_KCP_Station_Centrifuge" },
     bioAnalyzer = { id = "bioAnalyzer", labelKey = "IGUI_KCP_Station_BioAnalyzer" },
     synthesizer = { id = "synthesizer", labelKey = "IGUI_KCP_Station_Synthesizer" },
+    terminal = { id = "terminal", labelKey = "IGUI_KCP_Station_Terminal" },
 }
 
 local AUTOPSY_NAMES = {
@@ -61,6 +62,10 @@ function KCPStationRegistry.getStation(worldObject)
 
     if sheet == "appliances_refrigeration_01" then
         return STATIONS.coldStorage
+    end
+
+    if sheet == "appliances_com_01" and index and index >= 72 and index <= 75 then
+        return STATIONS.terminal
     end
 
     if sheet == "location_community_medical_01" and index and index >= 136 and index <= 139 then

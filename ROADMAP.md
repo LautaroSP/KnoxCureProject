@@ -23,11 +23,16 @@ Cada fase termina con verificación, checklist y commit estable.
 - [x] Lista blanca de sprites vanilla.
 - [x] Centrífuga, analizador y sintetizador con estados visuales.
 
-## Fase 3 — Acciones, sonidos y animaciones
+## Fase 3 — Acciones y sonidos (candidato implementado)
 
-- [ ] Acciones temporizadas de cada estación.
-- [ ] Cancelación segura sin duplicaciones.
-- [ ] Sonidos y animaciones integrados.
+- [x] Once acciones temporizadas para camilla, microscopio, centrífuga,
+  analizador, terminal y sintetizador.
+- [x] Revalidación servidor-autoritativa, bloqueo por estación y cancelación sin
+  consumo ni resultados duplicados.
+- [x] Sonidos aprobados integrados; personaje quieto sin animaciones específicas.
+- [ ] Matriz manual en solitario y multijugador confirmada por el usuario.
+
+Pruebas: [`docs/PHASE3_TEST_PLAN.md`](docs/PHASE3_TEST_PLAN.md).
 
 ## Fase 4 — Profesión y autopsias
 

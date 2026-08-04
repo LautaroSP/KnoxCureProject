@@ -1,0 +1,26 @@
+module Base
+{
+    sound KCP_KeyboardTyping
+    {
+        category = Object,
+        is3D = true,
+        loop = true,
+        clip
+        {
+            file = media/sound/KCP_KeyboardTyping.ogg,
+            distanceMax = 12,
+        }
+    }
+
+    sound KCP_SynthesizerRotor
+    {
+        category = Object,
+        is3D = true,
+        loop = true,
+        clip
+        {
+            file = media/sound/KCP_SynthesizerRotor.ogg,
+            distanceMax = 25,
+        }
+    }
+}

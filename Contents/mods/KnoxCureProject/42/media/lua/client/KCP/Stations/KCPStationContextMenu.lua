@@ -1,4 +1,7 @@
 require "KCP/Stations/KCPStationRegistry"
+require "KCP/Debug/KCPDebugSoundPreview"
+require "KCP/Debug/KCPPhase3Debug"
+require "KCP/Actions/KCPActionMenu"
 require "Moveables/ISMoveableSpriteProps"
 
 KCPStationContextMenu = KCPStationContextMenu or {}
@@ -113,9 +116,15 @@ function KCPStationContextMenu.onFillWorldObjectContextMenu(playerNum, context, 
             optionText = optionText .. " - " .. getText(entry.station.labelKey)
         end
         subMenu:addOption(optionText, entry.object, inspectStation, playerObj, entry.station)
+        KCPActionMenu.addActions(subMenu, playerObj, entry.object, entry.station)
         if getCore():getDebug() and not isClient() and BASE_START_INDEX[entry.station.id] then
             addStatePreviewMenu(subMenu, entry, playerObj)
         end
+    end
+
+    if getCore():getDebug() and not isClient() then
+        KCPDebugSoundPreview.addMenu(subMenu, playerObj)
+        KCPPhase3Debug.addMenu(subMenu, playerObj)
     end
 end
 

@@ -2,6 +2,6 @@ name=Knox Cure Project
 id=KnoxCureProject
 author=LautaroSP
 description=Investiga la infección Knox mediante autopsias y un laboratorio para desarrollar una cura.
-modversion=0.0.1
+modversion=0.3.0
 pack=KCP_LabEquipment
 tiledef=KCP_LabEquipment 867

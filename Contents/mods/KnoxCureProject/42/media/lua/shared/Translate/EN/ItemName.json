@@ -1,0 +1,13 @@
+{
+  "KCP.ProvisionalSampleContainer": "Provisional sample container",
+  "KCP.RawTissueSample": "Raw tissue sample",
+  "KCP.ClassifiedTissueSample": "Classified tissue sample",
+  "KCP.CentrifugeBalanceTube": "Centrifuge balance tube",
+  "KCP.ViralFraction": "Viral fraction",
+  "KCP.StabilizedViralFraction": "Stabilized viral fraction",
+  "KCP.ResearchDrive": "Research drive",
+  "KCP.ScientificRecord": "Scientific record",
+  "KCP.SynthesisReagentKit": "Synthesis reagent kit",
+  "KCP.EmptyInjector": "Empty sterile injector",
+  "KCP.ExperimentalSynthesisBatch": "Experimental synthesis batch"
+}
