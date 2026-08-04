@@ -51,7 +51,7 @@ require("busyToken" in service and "busyUntil" in service, "Station locking is m
 require("getCorpseByObjectId" in service, "Exact corpse selection is missing")
 require("setDoGrappleLetGo" not in service, "Corpse placement still uses vanilla dragging")
 require("pickUpCorpse" not in service, "Corpse removal still starts vanilla dragging")
-require("setRenderYOffset" in service, "Gurney corpse render-height handling is missing")
+require("setZ" in service, "Gurney corpse world-height handling is missing")
 
 utils = read(
     "Contents/mods/KnoxCureProject/42/media/lua/shared/KCP/Actions/KCPActionUtils.lua"
@@ -61,6 +61,7 @@ require("sendAddItemToContainer" in utils, "Server inventory addition sync is mi
 require("getCorpseByObjectId" in utils, "Exact corpse-ID lookup is missing")
 require("getLinkedCorpse" in utils, "Gurney corpse linking is missing")
 require("getGurneyRenderHeight" in utils, "Gurney render height lookup is missing")
+require("getGurneyWorldZ" in utils and "/ 96" in utils, "Gurney world-Z conversion is missing")
 
 server = read(
     "Contents/mods/KnoxCureProject/42/media/lua/server/KCP/Actions/KCPActionServer.lua"

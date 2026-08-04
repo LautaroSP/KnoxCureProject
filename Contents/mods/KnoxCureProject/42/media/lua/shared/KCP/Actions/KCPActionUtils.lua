@@ -248,6 +248,13 @@ function KCPActionUtils.getGurneyRenderHeight(worldObject)
     return height
 end
 
+function KCPActionUtils.getGurneyWorldZ(worldObject)
+    local _, _, floorZ = KCPActionUtils.getGurneyPlacement(worldObject)
+    if floorZ == nil then return nil end
+    -- Project Zomboid projects one full Z level as 96 vertical pixels.
+    return floorZ + KCPActionUtils.getGurneyRenderHeight(worldObject) / 96
+end
+
 function KCPActionUtils.getLinkedCorpse(worldObject)
     local key = KCPActionUtils.getGurneyKey(worldObject)
     if not key then return nil end
@@ -262,7 +269,8 @@ function KCPActionUtils.getLinkedCorpse(worldObject)
                         local corpse = bodies:get(i)
                         local data = KCPActionUtils.getCorpseData(corpse)
                         if not corpse:isAnimal() and corpse:isZombie() and data.gurneyKey == key then
-                            corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
+                            corpse:setRenderYOffset(0)
+                            corpse:setZ(KCPActionUtils.getGurneyWorldZ(worldObject))
                             return corpse
                         end
                     end

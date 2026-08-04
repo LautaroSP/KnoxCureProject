@@ -127,7 +127,8 @@ EXECUTORS.placeCorpseOnGurney = function(_, worldObject, args)
     oldSquare:removeCorpse(corpse, false)
     corpse:setPosition(x, y, z)
     targetSquare:addCorpse(corpse, false)
-    corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
+    corpse:setRenderYOffset(0)
+    corpse:setZ(KCPActionUtils.getGurneyWorldZ(worldObject))
     local corpseData = KCPActionUtils.getCorpseData(corpse)
     corpseData.gurneyKey = key
     corpseData.schemaVersion = KCPActionDefinitions.schemaVersion
@@ -149,6 +150,7 @@ EXECUTORS.removeCorpseFromGurney = function(playerObj, worldObject)
         oldSquare:removeCorpse(corpse, false)
         corpse:setPosition(playerObj:getX(), playerObj:getY(), playerObj:getZ())
         playerSquare:addCorpse(corpse, false)
+        corpse:setZ(playerObj:getZ())
     end
 end
 
