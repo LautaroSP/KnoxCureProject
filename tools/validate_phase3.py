@@ -84,6 +84,8 @@ timed_action = read(
 require("setActionAnim" not in timed_action, "Phase 3 must not assign action animations")
 for cancellation in ("stopOnWalk = true", "stopOnRun = true", "stopOnAim = true", "startHealth"):
     require(cancellation in timed_action, f"Cancellation guard missing: {cancellation}")
+for sound_stop in ("stopOrTriggerSound", "stopSoundByName", "stopAll"):
+    require(sound_stop in timed_action, f"Forced continuous-sound cleanup missing: {sound_stop}")
 
 action_menu = read(
     "Contents/mods/KnoxCureProject/42/media/lua/client/KCP/Actions/KCPActionMenu.lua"

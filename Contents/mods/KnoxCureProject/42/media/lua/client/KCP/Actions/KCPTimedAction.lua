@@ -22,7 +22,7 @@ local function playAtStation(worldObject, soundName)
     local emitter = getWorld():getFreeEmitter()
     emitter:setPos(square:getX() + 0.5, square:getY() + 0.5, square:getZ())
     local soundId = emitter:playSoundImpl(soundName, false, nil)
-    return { emitter = emitter, id = soundId }
+    return { emitter = emitter, id = soundId, name = soundName }
 end
 
 local function playAtCoordinates(x, y, z, soundName)
@@ -30,13 +30,22 @@ local function playAtCoordinates(x, y, z, soundName)
     local emitter = getWorld():getFreeEmitter()
     emitter:setPos(x + 0.5, y + 0.5, z)
     local soundId = emitter:playSoundImpl(soundName, false, nil)
-    return { emitter = emitter, id = soundId }
+    return { emitter = emitter, id = soundId, name = soundName }
 end
 
 local function stopSound(handle)
-    if handle and handle.emitter and handle.id then
+    if not handle or not handle.emitter then return end
+    if handle.id then
+        handle.emitter:stopOrTriggerSound(handle.id)
         handle.emitter:stopSound(handle.id)
     end
+    if handle.name then
+        handle.emitter:stopOrTriggerSoundByName(handle.name)
+        handle.emitter:stopSoundByName(handle.name)
+    end
+    -- Every handle owns a dedicated free emitter, so this cannot stop sounds
+    -- from another action and guarantees that sustained FMOD events are cut.
+    handle.emitter:stopAll()
 end
 
 function KCPTimedAction:isValid()

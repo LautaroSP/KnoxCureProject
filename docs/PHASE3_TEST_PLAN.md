@@ -80,6 +80,8 @@ respaldos con porcentaje y cura quedan fuera de esta fase.
   el siguiente sin duplicarlo.
 - [ ] La centrífuga inicia, mantiene y finaliza sus sonidos; cancelarla detiene el
   sonido de trabajo.
+- [ ] Ningún sonido continuo sigue reproduciéndose después de completar, cancelar,
+  fallar o expirar una acción.
 - [ ] Calibrar exige destornillador y Electricidad 3; el análisis posterior exige
   Primeros Auxilios 5.
 - [ ] Al hacer clic derecho sobre un cuaderno del inventario aparece `Escribir
