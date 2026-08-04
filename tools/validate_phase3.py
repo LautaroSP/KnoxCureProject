@@ -48,11 +48,9 @@ service = read(
 executors = set(re.findall(r"EXECUTORS\.([A-Za-z0-9_]+)\s*=", service))
 require(expected_actions == executors, f"Executor mismatch: {expected_actions ^ executors}")
 require("busyToken" in service and "busyUntil" in service, "Station locking is missing")
-require("setDoGrappleLetGo" in service, "Vanilla corpse release is missing")
-require("pickUpCorpse" in service, "Vanilla corpse retrieval is missing")
-require("resolveCorpsePlacements" in service, "Corpse-to-gurney linking is missing")
-require("knownCorpseIds" in service, "Unambiguous corpse placement snapshot is missing")
-require("lastPlayerGrabbed" not in service, "Ambiguous last-player corpse selection is still present")
+require("getCorpseByObjectId" in service, "Exact corpse selection is missing")
+require("setDoGrappleLetGo" not in service, "Corpse placement still uses vanilla dragging")
+require("pickUpCorpse" not in service, "Corpse removal still starts vanilla dragging")
 require("setRenderYOffset" in service, "Gurney corpse render-height handling is missing")
 
 utils = read(
@@ -60,7 +58,7 @@ utils = read(
 )
 require("sendRemoveItemFromContainer" in utils, "Server inventory removal sync is missing")
 require("sendAddItemToContainer" in utils, "Server inventory addition sync is missing")
-require("isDraggingCorpse" in utils, "Vanilla corpse-dragging validation is missing")
+require("getCorpseByObjectId" in utils, "Exact corpse-ID lookup is missing")
 require("getLinkedCorpse" in utils, "Gurney corpse linking is missing")
 require("getGurneyRenderHeight" in utils, "Gurney render height lookup is missing")
 

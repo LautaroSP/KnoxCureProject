@@ -50,4 +50,3 @@ end
 
 Events.OnClientCommand.Add(KCPActionServer.onClientCommand)
 Events.EveryOneMinute.Add(cleanupExpiredLocks)
-Events.OnTick.Add(KCPActionService.resolveCorpsePlacements)

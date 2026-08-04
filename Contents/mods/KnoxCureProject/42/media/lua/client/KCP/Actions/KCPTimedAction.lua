@@ -42,7 +42,9 @@ end
 function KCPTimedAction:isValid()
     if not self.worldObject or not self.worldObject:getSquare() then return false end
     if self.character:getBodyDamage():getOverallBodyHealth() < self.startHealth then return false end
-    local ok = KCPActionUtils.validate(self.character, self.worldObject, self.definition.id, self.token)
+    local ok = KCPActionUtils.validate(self.character, self.worldObject, self.definition.id, self.token, {
+        corpseId = self.args.corpseId,
+    })
     return ok
 end
 
@@ -107,12 +109,12 @@ function KCPTimedAction:perform()
     ISBaseTimedAction.perform(self)
 end
 
-function KCPTimedAction:new(character, worldObject, definition, token)
+function KCPTimedAction:new(character, worldObject, definition, token, extraArgs)
     local o = ISBaseTimedAction.new(self, character)
     o.worldObject = worldObject
     o.definition = definition
     o.token = token
-    o.args = KCPActionUtils.makeTargetArgs(worldObject, definition.id, token)
+    o.args = KCPActionUtils.makeTargetArgs(worldObject, definition.id, token, extraArgs)
     o.startHealth = character:getBodyDamage():getOverallBodyHealth()
     o.maxTime = character:isTimedActionInstant() and 1 or definition.duration
     o.stopOnWalk = true

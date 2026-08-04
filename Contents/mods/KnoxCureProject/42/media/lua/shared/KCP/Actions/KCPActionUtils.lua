@@ -54,11 +54,11 @@ function KCPActionUtils.getTarget(args)
     return KCPActionUtils.getCanonicalObject(objects:get(index))
 end
 
-function KCPActionUtils.makeTargetArgs(worldObject, actionId, token)
+function KCPActionUtils.makeTargetArgs(worldObject, actionId, token, extraArgs)
     worldObject = KCPActionUtils.getCanonicalObject(worldObject)
     local square = worldObject and worldObject:getSquare()
     if not square then return nil end
-    return {
+    local args = {
         actionId = actionId,
         token = token,
         x = square:getX(),
@@ -66,6 +66,8 @@ function KCPActionUtils.makeTargetArgs(worldObject, actionId, token)
         z = square:getZ(),
         objectIndex = square:getObjects():indexOf(worldObject),
     }
+    for key, value in pairs(extraArgs or {}) do args[key] = value end
+    return args
 end
 
 function KCPActionUtils.isPlayerNear(playerObj, worldObject)
@@ -246,18 +248,6 @@ function KCPActionUtils.getGurneyRenderHeight(worldObject)
     return height
 end
 
-function KCPActionUtils.isDraggingCorpse(playerObj)
-    -- Build 42 does not reliably expose getGrapplingTarget() to Lua while the
-    -- context menu is open. isDraggingCorpse() is the vanilla source of truth;
-    -- the released IsoDeadBody is checked as a zombie before it is linked.
-    return playerObj ~= nil and playerObj:isDraggingCorpse()
-end
-
-function KCPActionUtils.getCorpseCarrierId(playerObj)
-    if isMultiplayer() then return playerObj:getOnlineID() end
-    return playerObj:getPlayerNum()
-end
-
 function KCPActionUtils.getLinkedCorpse(worldObject)
     local key = KCPActionUtils.getGurneyKey(worldObject)
     if not key then return nil end
@@ -276,6 +266,25 @@ function KCPActionUtils.getLinkedCorpse(worldObject)
                             return corpse
                         end
                     end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+function KCPActionUtils.getCorpseByObjectId(worldObject, corpseId)
+    if not worldObject or corpseId == nil then return nil end
+    local wantedId = tostring(corpseId)
+    local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
+    for dx = -4, 4 do
+        for dy = -4, 4 do
+            local square = getCell():getGridSquare(math.floor(x) + dx, math.floor(y) + dy, z)
+            local bodies = square and square:getDeadBodys()
+            if bodies then
+                for i = 0, bodies:size() - 1 do
+                    local corpse = bodies:get(i)
+                    if tostring(corpse:getObjectIDAsLong()) == wantedId then return corpse end
                 end
             end
         end
@@ -306,13 +315,6 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
 
     local data = KCPActionUtils.getStationData(worldObject)
     KCPActionUtils.clearExpiredLock(data)
-    if data.corpsePlacementPending == true and data.corpsePlacementStarted
-        and getGameTime():getWorldAgeHours() - data.corpsePlacementStarted > 0.01 then
-        data.corpsePlacementPending = nil
-        data.corpsePlacementPlayer = nil
-        data.corpsePlacementStarted = nil
-        KCPActionUtils.transmitModData(worldObject)
-    end
     addRequirement(requirements, not data.busyToken or data.busyToken == token, "IGUI_KCP_Requirement_StationAvailable")
 
     if action.requiredFirstAid then
@@ -350,10 +352,15 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
     end
 
     if actionId == "placeCorpseOnGurney" then
-        addRequirement(requirements, corpse == nil and data.corpsePlacementPending ~= true,
+        local groundCorpse = KCPActionUtils.getCorpseByObjectId(worldObject, options.corpseId)
+        local groundData = KCPActionUtils.getCorpseData(groundCorpse)
+        addRequirement(requirements, corpse == nil,
             "IGUI_KCP_Requirement_GurneyAvailableForCorpse")
-        addRequirement(requirements, KCPActionUtils.isDraggingCorpse(playerObj),
-            "IGUI_KCP_Requirement_DraggedZombieCorpse")
+        addRequirement(requirements, groundCorpse ~= nil and not groundCorpse:isAnimal()
+            and groundCorpse:isZombie() and groundData.gurneyKey == nil,
+            "IGUI_KCP_Requirement_GroundZombieCorpse")
+        addRequirement(requirements, not playerObj:isDraggingCorpse(),
+            "IGUI_KCP_Requirement_HandsFreeForCorpse")
     elseif actionId == "removeCorpseFromGurney" then
         addRequirement(requirements, corpse ~= nil, "IGUI_KCP_Requirement_CorpseOnGurney")
         addRequirement(requirements, not playerObj:isDraggingCorpse(), "IGUI_KCP_Requirement_HandsFreeForCorpse")

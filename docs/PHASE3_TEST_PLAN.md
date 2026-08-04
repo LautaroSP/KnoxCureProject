@@ -20,10 +20,11 @@ reservado para la Fase 4.
 
 ## Flujo provisional comprobable
 
-1. Mientras se arrastra un cadáver zombi, `Colocar cadáver en la camilla` lo
-   suelta centrado sobre la estación y lo vincula a ella. `Retirar cadáver de la
-   camilla` vuelve a tomar ese mismo cadáver. Ninguna acepta zombis vivos,
-   animales o cuerpos humanos.
+1. Al hacer clic derecho sobre un cadáver zombi en el piso, `Colocar cadáver en
+   la camilla` mueve exactamente ese cuerpo a la estación cercana y lo vincula
+   mediante su ID. `Retirar cadáver de la camilla` devuelve el mismo cuerpo al
+   piso junto al personaje. Ninguna operación utiliza el sistema de arrastre ni
+   acepta zombis vivos, animales o cuerpos humanos.
 2. Limpiar una camilla vacía consume `0.10 L` de alcohol o líquido limpiador. Un
    trapo limpio pasa a estar sucio; la esponja se conserva.
 3. Una autopsia exige camilla limpia, cadáver zombi colocado, bisturí, guantes y
@@ -51,20 +52,19 @@ respaldos con porcentaje y cura quedan fuera de esta fase.
    `Knox Cure > Pruebas de Fase 3 (debug)`.
 4. Añadir el kit completo y fijar Primeros Auxilios 7/Electricidad 3.
 5. Equipar manualmente los guantes y el barbijo.
-6. Matar un zombi, comenzar a arrastrar su cadáver y hacer clic derecho sobre la
-   camilla.
+6. Matar un zombi y hacer clic derecho sobre su cadáver, sin arrastrarlo.
 
 ## Matriz manual en solitario
 
 - [ ] Todas las opciones aparecen; las inválidas están en rojo y explican cada
   requisito faltante.
-- [ ] `Colocar cadáver en la camilla` sólo se habilita mientras se arrastra un
-  cadáver zombi y la camilla está vacía.
+- [ ] `Colocar cadáver en la camilla` aparece al hacer clic derecho sobre un
+  cadáver zombi en el piso cuando hay una camilla vacía cerca.
 - [ ] El cadáver queda centrado visualmente y persiste vinculado tras guardar y
   cargar la partida.
 - [ ] La autopsia no acepta un cadáver simplemente abandonado junto a la camilla.
-- [ ] `Retirar cadáver de la camilla` vuelve a arrastrar el mismo cuerpo y no lo
-  duplica.
+- [ ] `Retirar cadáver de la camilla` devuelve exactamente el mismo cuerpo al
+  piso, sin iniciar el arrastre y sin duplicarlo.
 - [ ] Quitar y recuperar un nivel requerido actualiza la opción del microscopio,
   centrífuga, analizador o sintetizador.
 - [ ] La limpieza consume líquido sólo al completar y convierte el trapo en

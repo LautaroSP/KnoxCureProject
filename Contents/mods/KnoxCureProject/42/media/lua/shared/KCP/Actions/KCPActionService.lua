@@ -4,7 +4,6 @@ require "KCP/Stations/KCPStationVisuals"
 
 KCPActionService = KCPActionService or {}
 KCPActionService.activeStations = KCPActionService.activeStations or {}
-KCPActionService.pendingCorpsePlacements = KCPActionService.pendingCorpsePlacements or {}
 
 local function clearLock(worldObject, token)
     local data = KCPActionUtils.getStationData(worldObject)
@@ -65,7 +64,9 @@ function KCPActionService.begin(playerObj, args)
         return false, "IGUI_KCP_Result_InvalidRequest"
     end
 
-    local ok = KCPActionUtils.validate(playerObj, worldObject, action.id, args.token)
+    local ok = KCPActionUtils.validate(playerObj, worldObject, action.id, args.token, {
+        corpseId = args.corpseId,
+    })
     if not ok then return false, "IGUI_KCP_Result_RequirementsChanged" end
 
     local data = KCPActionUtils.getStationData(worldObject)
@@ -116,45 +117,22 @@ end
 
 local EXECUTORS = {}
 
-local function collectNearbyCorpseIds(worldObject)
-    local ids = {}
+EXECUTORS.placeCorpseOnGurney = function(_, worldObject, args)
     local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
-    for dx = -3, 3 do
-        for dy = -3, 3 do
-            local square = getCell():getGridSquare(math.floor(x) + dx, math.floor(y) + dy, z)
-            local bodies = square and square:getDeadBodys()
-            if bodies then
-                for i = 0, bodies:size() - 1 do
-                    ids[tostring(bodies:get(i):getObjectIDAsLong())] = true
-                end
-            end
-        end
-    end
-    return ids
-end
-
-EXECUTORS.placeCorpseOnGurney = function(playerObj, worldObject)
-    local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
+    local corpse = KCPActionUtils.getCorpseByObjectId(worldObject, args.corpseId)
     local data = KCPActionUtils.getStationData(worldObject)
     local key = KCPActionUtils.getGurneyKey(worldObject)
-    local draggedCorpse = playerObj:getGrapplingTarget()
-    if draggedCorpse then
-        local draggedData = KCPActionUtils.getCorpseData(draggedCorpse)
-        draggedData.gurneyKey = nil
-        draggedData.pendingGurneyKey = key
-    end
-    data.corpsePlacementPending = true
-    data.corpsePlacementPlayer = KCPActionUtils.getCorpseCarrierId(playerObj)
-    data.corpsePlacementStarted = getGameTime():getWorldAgeHours()
-    KCPActionService.pendingCorpsePlacements[key] = {
-        worldObject = worldObject,
-        knownCorpseIds = collectNearbyCorpseIds(worldObject),
-    }
-
-    -- Build 42 keeps human corpses in the grappling system rather than inventory.
-    -- Releasing at the station position preserves the original corpse instance.
-    playerObj:setTargetGrapplePos(x, y, z)
-    playerObj:setDoGrappleLetGo()
+    local oldSquare = corpse:getSquare()
+    local targetSquare = getCell():getGridSquare(math.floor(x), math.floor(y), z)
+    oldSquare:removeCorpse(corpse, false)
+    corpse:setPosition(x, y, z)
+    targetSquare:addCorpse(corpse, false)
+    corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
+    local corpseData = KCPActionUtils.getCorpseData(corpse)
+    corpseData.gurneyKey = key
+    corpseData.schemaVersion = KCPActionDefinitions.schemaVersion
+    if corpse.transmitModData then corpse:transmitModData() end
+    data.corpseLinked = true
 end
 
 EXECUTORS.removeCorpseFromGurney = function(playerObj, worldObject)
@@ -164,16 +142,14 @@ EXECUTORS.removeCorpseFromGurney = function(playerObj, worldObject)
     if corpse.transmitModData then corpse:transmitModData() end
     local data = KCPActionUtils.getStationData(worldObject)
     data.corpseLinked = nil
-    data.corpsePlacementPending = nil
     corpse:setRenderYOffset(0)
     local oldSquare = corpse:getSquare()
     local playerSquare = playerObj:getSquare()
-    if oldSquare and playerSquare and oldSquare ~= playerSquare then
+    if oldSquare and playerSquare then
         oldSquare:removeCorpse(corpse, false)
         corpse:setPosition(playerObj:getX(), playerObj:getY(), playerObj:getZ())
         playerSquare:addCorpse(corpse, false)
     end
-    playerObj:pickUpCorpse(corpse, "BwdDrag")
 end
 
 EXECUTORS.cleanGurney = function(playerObj, worldObject)
@@ -200,76 +176,6 @@ EXECUTORS.extractSample = function(playerObj, worldObject)
     KCPActionUtils.addItem(playerObj, "KCP.RawTissueSample")
     corpseData.samplesRemaining = math.max(0, (corpseData.samplesRemaining or 0) - 1)
     if corpse.transmitModData then corpse:transmitModData() end
-end
-
-local function findPlacedCorpse(worldObject, knownCorpseIds)
-    local best, bestDistance = nil, nil
-    local targetX, targetY, targetZ = KCPActionUtils.getGurneyPlacement(worldObject)
-    if not targetX then return nil end
-    for dx = -3, 3 do
-        for dy = -3, 3 do
-            local square = getCell():getGridSquare(math.floor(targetX) + dx, math.floor(targetY) + dy, targetZ)
-            local bodies = square and square:getDeadBodys()
-            if bodies then
-                for i = 0, bodies:size() - 1 do
-                    local corpse = bodies:get(i)
-                    local corpseData = KCPActionUtils.getCorpseData(corpse)
-                    local matchesPlacement = corpseData.pendingGurneyKey == KCPActionUtils.getGurneyKey(worldObject)
-                        or not knownCorpseIds[tostring(corpse:getObjectIDAsLong())]
-                    if not corpse:isAnimal() and corpse:isZombie() and corpseData.gurneyKey == nil
-                        and matchesPlacement then
-                        local distance = (corpse:getX() - targetX) ^ 2 + (corpse:getY() - targetY) ^ 2
-                        if not bestDistance or distance < bestDistance then
-                            best, bestDistance = corpse, distance
-                        end
-                    end
-                end
-            end
-        end
-    end
-    return best
-end
-
-function KCPActionService.resolveCorpsePlacements()
-    local now = getGameTime():getWorldAgeHours()
-    for key, pending in pairs(KCPActionService.pendingCorpsePlacements) do
-        local worldObject = pending.worldObject
-        local data = worldObject and KCPActionUtils.getStationData(worldObject)
-        local corpse = data and findPlacedCorpse(worldObject, pending.knownCorpseIds)
-        if corpse then
-            local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
-            local oldSquare = corpse:getSquare()
-            local targetSquare = getCell():getGridSquare(math.floor(x), math.floor(y), z)
-            if oldSquare and targetSquare and oldSquare ~= targetSquare then
-                oldSquare:removeCorpse(corpse, false)
-                corpse:setPosition(x, y, z)
-                targetSquare:addCorpse(corpse, false)
-            else
-                corpse:setPosition(x, y, z)
-                corpse:setCurrentSquareFromPosition()
-            end
-            corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
-            local corpseData = KCPActionUtils.getCorpseData(corpse)
-            corpseData.gurneyKey = key
-            corpseData.pendingGurneyKey = nil
-            corpseData.schemaVersion = KCPActionDefinitions.schemaVersion
-            if corpse.transmitModData then corpse:transmitModData() end
-            data.corpseLinked = true
-            data.corpsePlacementPending = nil
-            data.corpsePlacementPlayer = nil
-            data.corpsePlacementStarted = nil
-            KCPActionUtils.transmitModData(worldObject)
-            KCPActionService.pendingCorpsePlacements[key] = nil
-        elseif not data or now - (data.corpsePlacementStarted or now) > 0.01 then
-            if data then
-                data.corpsePlacementPending = nil
-                data.corpsePlacementPlayer = nil
-                data.corpsePlacementStarted = nil
-                KCPActionUtils.transmitModData(worldObject)
-            end
-            KCPActionService.pendingCorpsePlacements[key] = nil
-        end
-    end
 end
 
 EXECUTORS.examineMicroscope = function(playerObj)
@@ -341,7 +247,9 @@ function KCPActionService.execute(playerObj, args)
         return false, "IGUI_KCP_Result_LockMismatch"
     end
 
-    local ok = KCPActionUtils.validate(playerObj, worldObject, action.id, args.token)
+    local ok = KCPActionUtils.validate(playerObj, worldObject, action.id, args.token, {
+        corpseId = args.corpseId,
+    })
     if not ok then
         clearLock(worldObject, args.token)
         setMachineState(worldObject, "ready")
@@ -354,7 +262,7 @@ function KCPActionService.execute(playerObj, args)
         return false, "IGUI_KCP_Result_InvalidRequest"
     end
 
-    executor(playerObj, worldObject)
+    executor(playerObj, worldObject, args)
     clearLock(worldObject, args.token)
     KCPActionUtils.transmitModData(worldObject)
     setMachineState(worldObject, "ready")

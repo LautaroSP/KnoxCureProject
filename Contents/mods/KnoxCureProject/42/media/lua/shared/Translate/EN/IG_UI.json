@@ -76,6 +76,7 @@
   "IGUI_KCP_Requirement_Power": "Electrical power",
   "IGUI_KCP_Requirement_GurneyAvailableForCorpse": "Empty and available gurney",
   "IGUI_KCP_Requirement_DraggedZombieCorpse": "Be dragging a zombie corpse",
+  "IGUI_KCP_Requirement_GroundZombieCorpse": "Selected zombie corpse on the ground",
   "IGUI_KCP_Requirement_CorpseOnGurney": "Zombie corpse placed on the gurney",
   "IGUI_KCP_Requirement_HandsFreeForCorpse": "Not dragging another corpse",
   "IGUI_KCP_Requirement_GurneyDirty": "Gurney needs cleaning",

@@ -76,6 +76,7 @@
   "IGUI_KCP_Requirement_Power": "Suministro eléctrico",
   "IGUI_KCP_Requirement_GurneyAvailableForCorpse": "Camilla vacía y disponible",
   "IGUI_KCP_Requirement_DraggedZombieCorpse": "Estar arrastrando un cadáver zombi",
+  "IGUI_KCP_Requirement_GroundZombieCorpse": "Cadáver zombi seleccionado en el piso",
   "IGUI_KCP_Requirement_CorpseOnGurney": "Cadáver zombi colocado en la camilla",
   "IGUI_KCP_Requirement_HandsFreeForCorpse": "No estar arrastrando otro cadáver",
   "IGUI_KCP_Requirement_GurneyDirty": "La camilla necesita limpieza",

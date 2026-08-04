@@ -10,7 +10,6 @@ local ACTIONS = {
         station = "autopsy",
         labelKey = "IGUI_KCP_Action_PlaceCorpseOnGurney",
         duration = 10,
-        allowedWhileDraggingCorpses = true,
     },
     removeCorpseFromGurney = {
         id = "removeCorpseFromGurney",
@@ -118,7 +117,6 @@ end
 
 local ORDER = {
     autopsy = {
-        "placeCorpseOnGurney",
         "removeCorpseFromGurney",
         "cleanGurney",
         "autopsy",

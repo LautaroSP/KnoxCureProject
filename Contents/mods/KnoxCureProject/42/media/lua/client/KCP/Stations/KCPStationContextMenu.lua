@@ -27,6 +27,34 @@ local BASE_START_INDEX = {
     synthesizer = 16,
 }
 
+local function findNearbyAutopsyStation(corpse)
+    if not corpse or not corpse:getSquare() then return nil end
+    local origin = corpse:getSquare()
+    local best, bestDistance = nil, nil
+    for dx = -3, 3 do
+        for dy = -3, 3 do
+            local square = getCell():getGridSquare(origin:getX() + dx, origin:getY() + dy, origin:getZ())
+            local objects = square and square:getObjects()
+            if objects then
+                for i = 0, objects:size() - 1 do
+                    local object = objects:get(i)
+                    local station = KCPStationRegistry.getStation(object)
+                    if station and station.id == "autopsy" then
+                        object = KCPActionUtils.getCanonicalObject(object)
+                        local stationSquare = object:getSquare()
+                        local distance = (stationSquare:getX() - origin:getX()) ^ 2
+                            + (stationSquare:getY() - origin:getY()) ^ 2
+                        if not bestDistance or distance < bestDistance then
+                            best, bestDistance = object, distance
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return best
+end
+
 local function overlayNameForObject(worldObject, station, state)
     if state == "off" then
         return nil
@@ -92,6 +120,12 @@ function KCPStationContextMenu.onFillWorldObjectContextMenu(playerNum, context, 
         return
     end
 
+    local clickedCorpse = ISWorldObjectContextMenu.fetchVars and ISWorldObjectContextMenu.fetchVars.body
+    if clickedCorpse and (clickedCorpse:isAnimal() or not clickedCorpse:isZombie()) then
+        clickedCorpse = nil
+    end
+    local corpseGurney = findNearbyAutopsyStation(clickedCorpse)
+
     local found = {}
     local ordered = {}
     for _, worldObject in ipairs(worldObjects) do
@@ -102,13 +136,17 @@ function KCPStationContextMenu.onFillWorldObjectContextMenu(playerNum, context, 
         end
     end
 
-    if #ordered == 0 then
+    if #ordered == 0 and not corpseGurney then
         return
     end
 
     local rootOption = context:addOptionOnTop(getText("IGUI_KCP_Context_Root"), worldObjects, nil)
     local subMenu = ISContextMenu:getNew(context)
     context:addSubMenu(rootOption, subMenu)
+
+    if clickedCorpse and corpseGurney then
+        KCPActionMenu.addCorpsePlacement(subMenu, playerObj, corpseGurney, clickedCorpse)
+    end
 
     for _, entry in ipairs(ordered) do
         local optionText = getText("IGUI_KCP_Context_Inspect")
