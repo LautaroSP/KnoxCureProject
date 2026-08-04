@@ -85,3 +85,47 @@ function KCPActionMenu.addActions(parentMenu, playerObj, worldObject, station)
         if not ok then option.notAvailable = true end
     end
 end
+
+local function getSelectedNotebook(items)
+    for _, entry in ipairs(items or {}) do
+        if instanceof(entry, "InventoryItem") then
+            if entry:getFullType() == "Base.Notebook" then return entry end
+        elseif entry.items then
+            for _, item in ipairs(entry.items) do
+                if item:getFullType() == "Base.Notebook" then return item end
+            end
+        end
+    end
+    return nil
+end
+
+function KCPActionMenu.startScientificRecord(playerObj, notebook)
+    local definition = KCPActionDefinitions.get("writeScientificRecord")
+    if not playerObj or not notebook or not definition then return end
+    local extraArgs = { notebookId = tostring(notebook:getID()) }
+    local ok = KCPActionUtils.validate(playerObj, nil, definition.id, nil, extraArgs)
+    if not ok then return end
+    local token = createToken(playerObj, definition.id)
+    ISTimedActionQueue.add(KCPTimedAction:new(playerObj, nil, definition, token, extraArgs))
+end
+
+function KCPActionMenu.onFillInventoryObjectContextMenu(playerNum, context, items)
+    local playerObj = getSpecificPlayer(playerNum)
+    local notebook = getSelectedNotebook(items)
+    if not playerObj or not notebook then return end
+
+    local options = { notebookId = tostring(notebook:getID()) }
+    local ok, requirements = KCPActionUtils.validate(
+        playerObj, nil, "writeScientificRecord", nil, options
+    )
+    local option = context:addOption(
+        getText("IGUI_KCP_Action_WriteScientificRecord"),
+        playerObj,
+        KCPActionMenu.startScientificRecord,
+        notebook
+    )
+    setRequirementTooltip(option, requirements)
+    if not ok then option.notAvailable = true end
+end
+
+Events.OnFillInventoryObjectContextMenu.Add(KCPActionMenu.onFillInventoryObjectContextMenu)

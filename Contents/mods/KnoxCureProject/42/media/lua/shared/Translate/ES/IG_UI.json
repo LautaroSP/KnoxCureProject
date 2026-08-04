@@ -100,6 +100,7 @@
   "IGUI_KCP_Requirement_AnalyzerCalibrated": "Analizador calibrado",
   "IGUI_KCP_Requirement_ViralFraction": "Fracción viral",
   "IGUI_KCP_Requirement_Notebook": "Cuaderno",
+  "IGUI_KCP_Requirement_SelectedNotebook": "Cuaderno seleccionado en el inventario",
   "IGUI_KCP_Requirement_WritingTool": "Bolígrafo o lápiz",
   "IGUI_KCP_Requirement_ResearchDrive": "Disco de investigación",
   "IGUI_KCP_Requirement_WrittenResearchDrive": "Disco con datos exportados",

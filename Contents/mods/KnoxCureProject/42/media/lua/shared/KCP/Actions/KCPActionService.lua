@@ -4,6 +4,7 @@ require "KCP/Stations/KCPStationVisuals"
 
 KCPActionService = KCPActionService or {}
 KCPActionService.activeStations = KCPActionService.activeStations or {}
+KCPActionService.activeInventoryActions = KCPActionService.activeInventoryActions or {}
 
 local function clearLock(worldObject, token)
     local data = KCPActionUtils.getStationData(worldObject)
@@ -58,11 +59,27 @@ local function transformItem(playerObj, inputType, outputType)
 end
 
 function KCPActionService.begin(playerObj, args)
-    local worldObject = KCPActionUtils.getTarget(args)
     local action = args and KCPActionDefinitions.get(args.actionId)
-    if not worldObject or not action or not args.token then
+    if not action or not args.token then
         return false, "IGUI_KCP_Result_InvalidRequest"
     end
+
+    if action.inventoryAction then
+        local ok = KCPActionUtils.validate(playerObj, nil, action.id, args.token, {
+            notebookId = args.notebookId,
+        })
+        if not ok then return false, "IGUI_KCP_Result_RequirementsChanged" end
+        KCPActionService.activeInventoryActions[args.token] = {
+            actionId = action.id,
+            playerId = playerObj:getOnlineID(),
+            busyUntil = getGameTime():getWorldAgeHours() + KCPActionDefinitions.lockTimeoutHours,
+            x = args.x, y = args.y, z = args.z,
+        }
+        return true, "IGUI_KCP_Result_ActionStarted"
+    end
+
+    local worldObject = KCPActionUtils.getTarget(args)
+    if not worldObject then return false, "IGUI_KCP_Result_InvalidRequest" end
 
     local ok = KCPActionUtils.validate(playerObj, worldObject, action.id, args.token, {
         corpseId = args.corpseId,
@@ -100,10 +117,29 @@ function KCPActionService.cleanupExpiredLocks()
             end
         end
     end
+    for token, actionData in pairs(KCPActionService.activeInventoryActions) do
+        if not actionData.busyUntil or now >= actionData.busyUntil then
+            table.insert(expired, {
+                token = token,
+                actionId = actionData.actionId,
+                x = actionData.x, y = actionData.y, z = actionData.z,
+            })
+            KCPActionService.activeInventoryActions[token] = nil
+        end
+    end
     return expired
 end
 
 function KCPActionService.cancel(playerObj, args)
+    local action = args and KCPActionDefinitions.get(args.actionId)
+    if action and action.inventoryAction then
+        local active = KCPActionService.activeInventoryActions[args.token]
+        if active and active.playerId == playerObj:getOnlineID() then
+            KCPActionService.activeInventoryActions[args.token] = nil
+            return true, "IGUI_KCP_Result_ActionCancelled"
+        end
+        return false, "IGUI_KCP_Result_LockMismatch"
+    end
     local worldObject = KCPActionUtils.getTarget(args)
     if not worldObject then return false, "IGUI_KCP_Result_InvalidRequest" end
     local data = KCPActionUtils.getStationData(worldObject)
@@ -202,8 +238,9 @@ EXECUTORS.analyzeViralFraction = function(playerObj, worldObject)
     data.experimentalAnalyses = (data.experimentalAnalyses or 0) + 1
 end
 
-EXECUTORS.writeScientificRecord = function(playerObj)
-    KCPActionUtils.removeItem(playerObj, "Base.Notebook")
+EXECUTORS.writeScientificRecord = function(playerObj, _, args)
+    local notebook = KCPActionUtils.getNotebookById(playerObj, args.notebookId)
+    KCPActionUtils.removeSpecificItem(playerObj, notebook)
     local record = KCPActionUtils.addItem(playerObj, "KCP.ScientificRecord")
     record:getModData().KCPPhase3Record = true
     record:getModData().schemaVersion = KCPActionDefinitions.schemaVersion
@@ -238,11 +275,30 @@ EXECUTORS.runSynthesizer = function(playerObj)
 end
 
 function KCPActionService.execute(playerObj, args)
-    local worldObject = KCPActionUtils.getTarget(args)
     local action = args and KCPActionDefinitions.get(args.actionId)
-    if not worldObject or not action or not args.token then
+    if not action or not args.token then
         return false, "IGUI_KCP_Result_InvalidRequest"
     end
+
+
+    if action.inventoryAction then
+        local active = KCPActionService.activeInventoryActions[args.token]
+        if not active or active.playerId ~= playerObj:getOnlineID() or active.actionId ~= action.id then
+            return false, "IGUI_KCP_Result_LockMismatch"
+        end
+        local ok = KCPActionUtils.validate(playerObj, nil, action.id, args.token, {
+            notebookId = args.notebookId,
+        })
+        KCPActionService.activeInventoryActions[args.token] = nil
+        if not ok then return false, "IGUI_KCP_Result_RequirementsChanged" end
+        local executor = EXECUTORS[action.id]
+        if not executor then return false, "IGUI_KCP_Result_InvalidRequest" end
+        executor(playerObj, nil, args)
+        return true, "IGUI_KCP_Result_ActionCompleted"
+    end
+
+    local worldObject = KCPActionUtils.getTarget(args)
+    if not worldObject then return false, "IGUI_KCP_Result_InvalidRequest" end
 
     local data = KCPActionUtils.getStationData(worldObject)
     if data.busyToken ~= args.token or data.busyPlayer ~= playerObj:getOnlineID() then

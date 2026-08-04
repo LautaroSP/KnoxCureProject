@@ -36,7 +36,8 @@ reservado para la Fase 4.
    fracción viral.
 7. Calibrar el analizador exige Electricidad 3 y destornillador. Analizar exige
    Primeros Auxilios 5 y produce una fracción estabilizada.
-8. La terminal puede escribir un registro con cuaderno y útil de escritura,
+8. Un cuaderno llevado en el inventario permite escribir un registro con un útil
+   de escritura, sin terminal ni electricidad. La terminal queda reservada para
    exportar a un disco e importar el mismo disco.
 9. El sintetizador exige Primeros Auxilios 7, energía, fracción estabilizada,
    reactivos e inyector. Produce sólo un lote experimental sin efecto médico.
@@ -81,8 +82,10 @@ respaldos con porcentaje y cura quedan fuera de esta fase.
   sonido de trabajo.
 - [ ] Calibrar exige destornillador y Electricidad 3; el análisis posterior exige
   Primeros Auxilios 5.
-- [ ] El registro consume un cuaderno, conserva el bolígrafo/lápiz y entrega un
-  registro científico.
+- [ ] Al hacer clic derecho sobre un cuaderno del inventario aparece `Escribir
+  registro científico`; no aparece en la terminal.
+- [ ] El registro no exige terminal ni electricidad, consume el cuaderno
+  seleccionado, conserva el bolígrafo/lápiz y entrega un registro científico.
 - [ ] No se puede importar un disco antes de exportarlo; el disco se conserva en
   ambas operaciones.
 - [ ] El sintetizador consume sus tres entradas sólo al completar y entrega un

@@ -70,6 +70,18 @@ function KCPActionUtils.makeTargetArgs(worldObject, actionId, token, extraArgs)
     return args
 end
 
+function KCPActionUtils.makeInventoryArgs(playerObj, actionId, token, extraArgs)
+    local args = {
+        actionId = actionId,
+        token = token,
+        x = math.floor(playerObj:getX()),
+        y = math.floor(playerObj:getY()),
+        z = math.floor(playerObj:getZ()),
+    }
+    for key, value in pairs(extraArgs or {}) do args[key] = value end
+    return args
+end
+
 function KCPActionUtils.isPlayerNear(playerObj, worldObject)
     if not playerObj or not worldObject or not worldObject:getSquare() then return false end
     for _, member in ipairs(KCPActionUtils.getStationObjects(worldObject)) do
@@ -148,6 +160,16 @@ function KCPActionUtils.getWritingTool(playerObj)
     for _, fullType in ipairs({ "Base.Pen", "Base.Pencil", "Base.BluePen", "Base.RedPen", "Base.GreenPen" }) do
         local item = KCPActionUtils.getUsableItem(playerObj, fullType)
         if item then return item end
+    end
+    return nil
+end
+
+function KCPActionUtils.getNotebookById(playerObj, notebookId)
+    if not playerObj or notebookId == nil then return nil end
+    local notebooks = playerObj:getInventory():getAllTypeRecurse("Base.Notebook")
+    for i = 0, notebooks:size() - 1 do
+        local notebook = notebooks:get(i)
+        if tostring(notebook:getID()) == tostring(notebookId) then return notebook end
     end
     return nil
 end
@@ -310,20 +332,22 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
     worldObject = KCPActionUtils.getCanonicalObject(worldObject)
     local action = KCPActionDefinitions.get(actionId)
     local requirements = {}
-    if not action or not playerObj or not worldObject then
+    if not action or not playerObj or (not action.inventoryAction and not worldObject) then
         addRequirement(requirements, false, "IGUI_KCP_Requirement_InvalidTarget")
         return false, requirements
     end
 
-    local station = KCPStationRegistry.getStation(worldObject)
-    addRequirement(requirements, station and station.id == action.station, "IGUI_KCP_Requirement_CorrectStation")
-    if not options.ignoreDistance then
-        addRequirement(requirements, KCPActionUtils.isPlayerNear(playerObj, worldObject), "IGUI_KCP_Requirement_Adjacent")
+    local data = nil
+    if not action.inventoryAction then
+        local station = KCPStationRegistry.getStation(worldObject)
+        addRequirement(requirements, station and station.id == action.station, "IGUI_KCP_Requirement_CorrectStation")
+        if not options.ignoreDistance then
+            addRequirement(requirements, KCPActionUtils.isPlayerNear(playerObj, worldObject), "IGUI_KCP_Requirement_Adjacent")
+        end
+        data = KCPActionUtils.getStationData(worldObject)
+        KCPActionUtils.clearExpiredLock(data)
+        addRequirement(requirements, not data.busyToken or data.busyToken == token, "IGUI_KCP_Requirement_StationAvailable")
     end
-
-    local data = KCPActionUtils.getStationData(worldObject)
-    KCPActionUtils.clearExpiredLock(data)
-    addRequirement(requirements, not data.busyToken or data.busyToken == token, "IGUI_KCP_Requirement_StationAvailable")
 
     if action.requiredFirstAid then
         local current = playerObj:getPerkLevel(Perks.Doctor)
@@ -404,7 +428,8 @@ function KCPActionUtils.validate(playerObj, worldObject, actionId, token, option
         addRequirement(requirements, data.calibrated == true, "IGUI_KCP_Requirement_AnalyzerCalibrated")
         addRequirement(requirements, KCPActionUtils.hasItem(playerObj, "KCP.ViralFraction"), "IGUI_KCP_Requirement_ViralFraction")
     elseif actionId == "writeScientificRecord" then
-        addRequirement(requirements, KCPActionUtils.hasItem(playerObj, "Base.Notebook"), "IGUI_KCP_Requirement_Notebook")
+        addRequirement(requirements, KCPActionUtils.getNotebookById(playerObj, options.notebookId) ~= nil,
+            "IGUI_KCP_Requirement_SelectedNotebook")
         addRequirement(requirements, KCPActionUtils.getWritingTool(playerObj) ~= nil, "IGUI_KCP_Requirement_WritingTool")
     elseif actionId == "exportData" then
         addRequirement(requirements, KCPActionUtils.hasItem(playerObj, "KCP.ResearchDrive"), "IGUI_KCP_Requirement_ResearchDrive")
@@ -436,6 +461,16 @@ function KCPActionUtils.removeItem(playerObj, fullType)
         container:Remove(item)
         if isServer() then sendRemoveItemFromContainer(container, item) end
     end
+    return item
+end
+
+function KCPActionUtils.removeSpecificItem(playerObj, item)
+    if not playerObj or not item then return nil end
+    local container = item:getContainer()
+    if not container then return nil end
+    playerObj:removeFromHands(item)
+    container:Remove(item)
+    if isServer() then sendRemoveItemFromContainer(container, item) end
     return item
 end
 

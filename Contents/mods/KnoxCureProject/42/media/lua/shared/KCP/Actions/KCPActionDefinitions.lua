@@ -76,7 +76,7 @@ local ACTIONS = {
     },
     writeScientificRecord = {
         id = "writeScientificRecord",
-        station = "terminal",
+        inventoryAction = true,
         labelKey = "IGUI_KCP_Action_WriteScientificRecord",
         duration = 300,
         sound = "MapAddNote",
@@ -111,8 +111,10 @@ local ACTIONS = {
 
 local BY_STATION = {}
 for _, action in pairs(ACTIONS) do
-    BY_STATION[action.station] = BY_STATION[action.station] or {}
-    table.insert(BY_STATION[action.station], action)
+    if action.station then
+        BY_STATION[action.station] = BY_STATION[action.station] or {}
+        table.insert(BY_STATION[action.station], action)
+    end
 end
 
 local ORDER = {
@@ -125,7 +127,7 @@ local ORDER = {
     microscope = { "examineMicroscope" },
     centrifuge = { "runCentrifuge" },
     bioAnalyzer = { "calibrateAnalyzer", "analyzeViralFraction" },
-    terminal = { "writeScientificRecord", "exportData", "importData" },
+    terminal = { "exportData", "importData" },
     synthesizer = { "runSynthesizer" },
 }
 

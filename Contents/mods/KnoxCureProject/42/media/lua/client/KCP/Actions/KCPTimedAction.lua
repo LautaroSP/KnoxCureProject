@@ -40,21 +40,24 @@ local function stopSound(handle)
 end
 
 function KCPTimedAction:isValid()
-    if not self.worldObject or not self.worldObject:getSquare() then return false end
+    if not self.definition.inventoryAction
+        and (not self.worldObject or not self.worldObject:getSquare()) then return false end
     if self.character:getBodyDamage():getOverallBodyHealth() < self.startHealth then return false end
     local ok = KCPActionUtils.validate(self.character, self.worldObject, self.definition.id, self.token, {
         corpseId = self.args.corpseId,
+        notebookId = self.args.notebookId,
     })
     return ok
 end
 
 function KCPTimedAction:waitToStart()
+    if self.definition.inventoryAction then return false end
     self.character:faceThisObject(self.worldObject)
     return self.character:shouldBeTurning()
 end
 
 function KCPTimedAction:update()
-    self.character:faceThisObject(self.worldObject)
+    if self.worldObject then self.character:faceThisObject(self.worldObject) end
     self.character:setMetabolicTarget(Metabolics.LightDomestic)
 end
 
@@ -75,8 +78,13 @@ function KCPTimedAction:start()
     end
 
     if not isClient() then
-        self.startSoundHandle = playAtStation(self.worldObject, self.definition.startSound)
-        self.soundHandle = playAtStation(self.worldObject, self.definition.sound)
+        if self.definition.inventoryAction then
+            self.startSoundHandle = playAtCoordinates(self.args.x, self.args.y, self.args.z, self.definition.startSound)
+            self.soundHandle = playAtCoordinates(self.args.x, self.args.y, self.args.z, self.definition.sound)
+        else
+            self.startSoundHandle = playAtStation(self.worldObject, self.definition.startSound)
+            self.soundHandle = playAtStation(self.worldObject, self.definition.sound)
+        end
     end
 end
 
@@ -96,7 +104,11 @@ function KCPTimedAction:perform()
     stopSound(self.startSoundHandle)
     stopSound(self.soundHandle)
     if not isClient() then
-        playAtStation(self.worldObject, self.definition.finishSound)
+        if self.definition.inventoryAction then
+            playAtCoordinates(self.args.x, self.args.y, self.args.z, self.definition.finishSound)
+        else
+            playAtStation(self.worldObject, self.definition.finishSound)
+        end
     end
     KCPTimedAction.active[self.token] = nil
 
@@ -114,7 +126,11 @@ function KCPTimedAction:new(character, worldObject, definition, token, extraArgs
     o.worldObject = worldObject
     o.definition = definition
     o.token = token
-    o.args = KCPActionUtils.makeTargetArgs(worldObject, definition.id, token, extraArgs)
+    if definition.inventoryAction then
+        o.args = KCPActionUtils.makeInventoryArgs(character, definition.id, token, extraArgs)
+    else
+        o.args = KCPActionUtils.makeTargetArgs(worldObject, definition.id, token, extraArgs)
+    end
     o.startHealth = character:getBodyDamage():getOverallBodyHealth()
     o.maxTime = character:isTimedActionInstant() and 1 or definition.duration
     o.stopOnWalk = true

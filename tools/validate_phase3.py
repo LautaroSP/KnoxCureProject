@@ -41,6 +41,13 @@ definitions = read(
 defined_actions = set(re.findall(r'^\s{4}([A-Za-z0-9_]+)\s*=\s*\{\s*$', definitions, re.MULTILINE))
 require(expected_actions <= defined_actions, f"Missing action definitions: {expected_actions - defined_actions}")
 require("schemaVersion = 1" in definitions, "Phase 3 schemaVersion is missing")
+require(
+    re.search(r"writeScientificRecord\s*=\s*\{.*?inventoryAction\s*=\s*true", definitions, re.DOTALL),
+    "Scientific-record writing is not an inventory action",
+)
+terminal_order = re.search(r"terminal\s*=\s*\{(?P<body>[^}]*)\}", definitions)
+require(terminal_order and "writeScientificRecord" not in terminal_order.group("body"),
+        "Scientific-record writing is still exposed by terminals")
 
 service = read(
     "Contents/mods/KnoxCureProject/42/media/lua/shared/KCP/Actions/KCPActionService.lua"
@@ -77,6 +84,12 @@ timed_action = read(
 require("setActionAnim" not in timed_action, "Phase 3 must not assign action animations")
 for cancellation in ("stopOnWalk = true", "stopOnRun = true", "stopOnAim = true", "startHealth"):
     require(cancellation in timed_action, f"Cancellation guard missing: {cancellation}")
+
+action_menu = read(
+    "Contents/mods/KnoxCureProject/42/media/lua/client/KCP/Actions/KCPActionMenu.lua"
+)
+require("OnFillInventoryObjectContextMenu" in action_menu, "Notebook inventory context action is missing")
+require("notebookId" in action_menu, "Selected notebook ID is not sent to the server")
 
 items_text = read("Contents/mods/KnoxCureProject/42/media/scripts/KCP_Items.txt")
 item_ids = set(re.findall(r"^\s{4}item\s+([A-Za-z0-9_]+)\s*$", items_text, re.MULTILINE))
