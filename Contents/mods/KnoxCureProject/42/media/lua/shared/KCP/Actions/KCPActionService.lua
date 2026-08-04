@@ -116,6 +116,23 @@ end
 
 local EXECUTORS = {}
 
+local function collectNearbyCorpseIds(worldObject)
+    local ids = {}
+    local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
+    for dx = -3, 3 do
+        for dy = -3, 3 do
+            local square = getCell():getGridSquare(math.floor(x) + dx, math.floor(y) + dy, z)
+            local bodies = square and square:getDeadBodys()
+            if bodies then
+                for i = 0, bodies:size() - 1 do
+                    ids[tostring(bodies:get(i):getObjectIDAsLong())] = true
+                end
+            end
+        end
+    end
+    return ids
+end
+
 EXECUTORS.placeCorpseOnGurney = function(playerObj, worldObject)
     local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
     local data = KCPActionUtils.getStationData(worldObject)
@@ -129,7 +146,10 @@ EXECUTORS.placeCorpseOnGurney = function(playerObj, worldObject)
     data.corpsePlacementPending = true
     data.corpsePlacementPlayer = KCPActionUtils.getCorpseCarrierId(playerObj)
     data.corpsePlacementStarted = getGameTime():getWorldAgeHours()
-    KCPActionService.pendingCorpsePlacements[key] = worldObject
+    KCPActionService.pendingCorpsePlacements[key] = {
+        worldObject = worldObject,
+        knownCorpseIds = collectNearbyCorpseIds(worldObject),
+    }
 
     -- Build 42 keeps human corpses in the grappling system rather than inventory.
     -- Releasing at the station position preserves the original corpse instance.
@@ -145,6 +165,14 @@ EXECUTORS.removeCorpseFromGurney = function(playerObj, worldObject)
     local data = KCPActionUtils.getStationData(worldObject)
     data.corpseLinked = nil
     data.corpsePlacementPending = nil
+    corpse:setRenderYOffset(0)
+    local oldSquare = corpse:getSquare()
+    local playerSquare = playerObj:getSquare()
+    if oldSquare and playerSquare and oldSquare ~= playerSquare then
+        oldSquare:removeCorpse(corpse, false)
+        corpse:setPosition(playerObj:getX(), playerObj:getY(), playerObj:getZ())
+        playerSquare:addCorpse(corpse, false)
+    end
     playerObj:pickUpCorpse(corpse, "BwdDrag")
 end
 
@@ -174,7 +202,7 @@ EXECUTORS.extractSample = function(playerObj, worldObject)
     if corpse.transmitModData then corpse:transmitModData() end
 end
 
-local function findPlacedCorpse(worldObject, playerId)
+local function findPlacedCorpse(worldObject, knownCorpseIds)
     local best, bestDistance = nil, nil
     local targetX, targetY, targetZ = KCPActionUtils.getGurneyPlacement(worldObject)
     if not targetX then return nil end
@@ -185,10 +213,9 @@ local function findPlacedCorpse(worldObject, playerId)
             if bodies then
                 for i = 0, bodies:size() - 1 do
                     local corpse = bodies:get(i)
-                    local grabbedBy = corpse:getModData()["lastPlayerGrabbed"]
                     local corpseData = KCPActionUtils.getCorpseData(corpse)
                     local matchesPlacement = corpseData.pendingGurneyKey == KCPActionUtils.getGurneyKey(worldObject)
-                        or tonumber(grabbedBy) == tonumber(playerId)
+                        or not knownCorpseIds[tostring(corpse:getObjectIDAsLong())]
                     if not corpse:isAnimal() and corpse:isZombie() and corpseData.gurneyKey == nil
                         and matchesPlacement then
                         local distance = (corpse:getX() - targetX) ^ 2 + (corpse:getY() - targetY) ^ 2
@@ -205,13 +232,23 @@ end
 
 function KCPActionService.resolveCorpsePlacements()
     local now = getGameTime():getWorldAgeHours()
-    for key, worldObject in pairs(KCPActionService.pendingCorpsePlacements) do
+    for key, pending in pairs(KCPActionService.pendingCorpsePlacements) do
+        local worldObject = pending.worldObject
         local data = worldObject and KCPActionUtils.getStationData(worldObject)
-        local corpse = data and findPlacedCorpse(worldObject, data.corpsePlacementPlayer)
+        local corpse = data and findPlacedCorpse(worldObject, pending.knownCorpseIds)
         if corpse then
             local x, y, z = KCPActionUtils.getGurneyPlacement(worldObject)
-            corpse:setPosition(x, y, z)
-            corpse:setCurrentSquareFromPosition()
+            local oldSquare = corpse:getSquare()
+            local targetSquare = getCell():getGridSquare(math.floor(x), math.floor(y), z)
+            if oldSquare and targetSquare and oldSquare ~= targetSquare then
+                oldSquare:removeCorpse(corpse, false)
+                corpse:setPosition(x, y, z)
+                targetSquare:addCorpse(corpse, false)
+            else
+                corpse:setPosition(x, y, z)
+                corpse:setCurrentSquareFromPosition()
+            end
+            corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
             local corpseData = KCPActionUtils.getCorpseData(corpse)
             corpseData.gurneyKey = key
             corpseData.pendingGurneyKey = nil

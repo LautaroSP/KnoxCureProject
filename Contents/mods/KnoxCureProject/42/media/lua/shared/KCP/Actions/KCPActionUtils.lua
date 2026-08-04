@@ -231,6 +231,21 @@ function KCPActionUtils.getGurneyPlacement(worldObject)
     return totalX / count, totalY / count, z
 end
 
+function KCPActionUtils.getGurneyRenderHeight(worldObject)
+    local height = 0
+    for _, member in ipairs(KCPActionUtils.getStationObjects(worldObject)) do
+        local sprite = member:getSprite()
+        local props = sprite and sprite:getProperties()
+        if props then
+            for _, propertyName in ipairs({ "ItemHeight", "Surface" }) do
+                local value = props:has(propertyName) and tonumber(props:get(propertyName)) or nil
+                if value then height = math.max(height, value) end
+            end
+        end
+    end
+    return height
+end
+
 function KCPActionUtils.isDraggingCorpse(playerObj)
     -- Build 42 does not reliably expose getGrapplingTarget() to Lua while the
     -- context menu is open. isDraggingCorpse() is the vanilla source of truth;
@@ -257,6 +272,7 @@ function KCPActionUtils.getLinkedCorpse(worldObject)
                         local corpse = bodies:get(i)
                         local data = KCPActionUtils.getCorpseData(corpse)
                         if not corpse:isAnimal() and corpse:isZombie() and data.gurneyKey == key then
+                            corpse:setRenderYOffset(KCPActionUtils.getGurneyRenderHeight(worldObject))
                             return corpse
                         end
                     end
